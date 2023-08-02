@@ -29,6 +29,9 @@ void AKCSPlayerState::BeginPlay()
 
 	FKCSRequestableData& HighScoreRequestableData = UKCSGameplayTagMessageSubsystem::RegisterRequestableData(this, TAG_UI_Message_PlayerHighScoreUpdated);
 	HighScoreRequestableData.AddUObject(this, &ThisClass::OnHighScoreDataRequested);
+
+	FKCSRequestableData& ScoreRequestableData = UKCSGameplayTagMessageSubsystem::RegisterRequestableData(this, TAG_UI_Message_PlayerScoreUpdated);
+	ScoreRequestableData.AddUObject(this, &ThisClass::OnHighScoreDataRequested);
 }
 
 void AKCSPlayerState::OnLiveLost()
@@ -88,5 +91,10 @@ void AKCSPlayerState::OnLivesDataRequested()
 void AKCSPlayerState::OnHighScoreDataRequested()
 {
 	NOTIFY_HIGHSCORE_TO_UI();
+}
+
+void AKCSPlayerState::OnScoreDataRequested()
+{
+	UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(GetWorld(), TAG_UI_Message_PlayerScoreUpdated, FKCSIntData(HighScore));
 }
 

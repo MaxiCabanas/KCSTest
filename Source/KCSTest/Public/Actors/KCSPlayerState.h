@@ -39,6 +39,8 @@ protected:
 
 	void OnHighScoreDataRequested();
 
+	void OnScoreDataRequested();
+
 private:
 
 	UPROPERTY(Config)
