@@ -18,12 +18,11 @@ void UGameplayTask_KCSReverseTimeTask::OnActivate()
 	AKCSGameState* GameState = GetWorld()->GetGameState<AKCSGameState>();
 	GameState->SetGameStateTickEnabled(false);
 
-	TSet<TObjectPtr<AActor>> AllEnemies;
-	GameState->GetAllEnemiesActors(AllEnemies);
+	TSet<TScriptInterface<IKCSTimelineOwnerInterface>> AllTimelineOwners;
+	GameState->GetAllTimelineOwners(AllTimelineOwners);
 
-	for (const TObjectPtr<AActor> Enemy : AllEnemies)
+	for (const TScriptInterface<IKCSTimelineOwnerInterface>& TimelineOwner : AllTimelineOwners)
 	{
-		IKCSTimelineOwnerInterface* TimelineOwner = CastChecked<IKCSTimelineOwnerInterface>(Enemy); 
 		UKCSTimelineComponent* TimelineComponent = TimelineOwner->GetTimelineComponent();
 
 		if (!TimelineComponent->CanPlay())
@@ -32,14 +31,16 @@ void UGameplayTask_KCSReverseTimeTask::OnActivate()
 		}
 
 		TimelineComponent->OnTimelineFinished.AddUniqueDynamic(this, &ThisClass::OnTimelineFinished);
+		TimelineComponent->SetReverseTimeDuration(Duration);
 		TimelineComponent->PlayInReverse();
-		PendingTimelines.Add(Enemy);
+		PendingTimelines.Add(TimelineComponent);
 	}
 }
 
 void UGameplayTask_KCSReverseTimeTask::OnTimelineFinished(UKCSTimelineComponent* TimelineComponent)
 {
-	PendingTimelines.Remove(TimelineComponent->GetOwner());
+	PendingTimelines.Remove(TimelineComponent);
+
 	if (PendingTimelines.IsEmpty())
 	{
 		if (const UWorld* World = GetWorld())

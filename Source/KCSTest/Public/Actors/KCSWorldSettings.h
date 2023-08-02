@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Characters/KCSEnemyPawn.h"
 #include "GameFramework/WorldSettings.h"
 #include "KCSWorldSettings.generated.h"
 
@@ -47,30 +48,23 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static AKCSWorldSettings* GetKCSWorldSettings(UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintCallable, Category = "KCS|Time")
-	void SetEnemiesTimeDilation(float NewTimeDilation);
-
-	UFUNCTION(BlueprintPure, Category = "KCS|Time")
-	float GetEnemiesTimeDilation() const { return EnemiesTimeDilation; }
-
-	UFUNCTION(BlueprintPure, Category = "KCS|Time")
-	float GetTimeReverseAmount() const { return TimeReverseAmount; }
-
 	const FKCSEnemiesBehaviorSettings& GetEnemiesSettings() const { return EnemiesSettings; }
+
+	int32 GetScoreForEnemy(UClass* EnemyClass);
+
+	int32 GetInitialPlayerLives() const { return InitialPlayerLives; }
 	
 	UPROPERTY(BlueprintAssignable)
 	FEnemiesTimeDilationEvent OnEnemiesTimeDilationChanged;
 
 protected:
-
-	/** How enemies perceive the time dilation. */
-	UPROPERTY(Transient)
-	float EnemiesTimeDilation = 1.0f;
-
-	/** How much back in time the game records. */
-	UPROPERTY(Config, EditAnywhere, Category = "KCS|Enemy")
-	float TimeReverseAmount = 3.0f;
 	
 	UPROPERTY(Config, EditDefaultsOnly, Category = "KCS|Enemy", meta = (ShowOnlyInnerProperties))
 	FKCSEnemiesBehaviorSettings EnemiesSettings;
+
+	UPROPERTY(Config, EditDefaultsOnly, Category = "KCS|Enemy")
+	TMap<TSubclassOf<AKCSEnemyPawn>, int32> EnemyScore;
+
+	UPROPERTY(Config, EditDefaultsOnly, Category = "KCS|Player")
+	int32 InitialPlayerLives = 3;
 };

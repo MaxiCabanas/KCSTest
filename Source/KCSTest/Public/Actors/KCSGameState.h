@@ -2,14 +2,17 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "KCSWorldSettings.h"
-#include "GameFramework/GameStateBase.h"
+// KCS includes
 #include "Interfaces/KCSTimelineOwnerInterface.h"
+#include "KCSWorldSettings.h"
+
+// UE Includes
+#include "CoreMinimal.h"
+#include "GameFramework/GameStateBase.h"
 #include "KCSGameState.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKCSGameStateFloatEvent, float, Value);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKCSGameStateBoolEvent, bool, bValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKCSGameStateEvent, class AKCSGameState*, GameState);
 
 UCLASS()
 class KCSTEST_API AKCSGameState : public AGameStateBase, public IKCSTimelineOwnerInterface
@@ -30,7 +33,9 @@ public:
 
 	void RegisterEnemies(const TArray<FKCSEnemiesRow>& Enemies);
 
-	void GetAllEnemiesActors(TSet<TObjectPtr<AActor>>& OutEnemiesSet);
+	void GetAllEnemies(TSet<TObjectPtr<AKCSEnemyPawn>>& OutEnemiesSet);
+
+	void GetAllTimelineOwners(TSet<TScriptInterface<IKCSTimelineOwnerInterface>>& TimelineOwners);
 
 	UFUNCTION(BlueprintCallable)
 	void GetNotifyEnemyReachGameBorder();
@@ -41,6 +46,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FKCSGameStateFloatEvent OnGameStateTimeDilationChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FKCSGameStateEvent OnGameStateReady;
 	
 protected:
 

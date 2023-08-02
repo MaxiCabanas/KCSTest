@@ -12,8 +12,8 @@ AKCSWorldSettings* AKCSWorldSettings::GetKCSWorldSettings(UObject* WorldContextO
 	return nullptr;
 }
 
-void AKCSWorldSettings::SetEnemiesTimeDilation(float NewTimeDilation)
+int32 AKCSWorldSettings::GetScoreForEnemy(UClass* EnemyClass)
 {
-	EnemiesTimeDilation = NewTimeDilation;
-	OnEnemiesTimeDilationChanged.Broadcast(EnemiesTimeDilation);
+	const int* Score = EnemyScore.Find(EnemyClass);
+	return *Score;
 }

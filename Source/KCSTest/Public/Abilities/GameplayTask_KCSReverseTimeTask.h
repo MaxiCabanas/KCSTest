@@ -36,5 +36,5 @@ protected:
 private:
 
 	UPROPERTY()
-	TArray<TObjectPtr<AActor>> PendingTimelines;
+	TArray<TObjectPtr<UKCSTimelineComponent>> PendingTimelines;
 };

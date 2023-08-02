@@ -5,10 +5,10 @@
 
 #include "Actors/KCSPlayerState.h"
 
-void UGameplayTask_KCSPlayerTimeTask::Execute(APawn* TaskOwner, const UClass* TaskClass, UGameplayTask_KCSPlayerTimeTask* Default)
+void UGameplayTask_KCSPlayerTimeTask::Execute(TScriptInterface<IGameplayTaskOwnerInterface> TaskOwner, const UClass* TaskClass, UGameplayTask_KCSPlayerTimeTask* Default)
 {
 	UGameplayTask_KCSPlayerTimeTask* TimeTask = NewObject<UGameplayTask_KCSPlayerTimeTask>((UObject*)GetTransientPackage(), TaskClass);
-	TimeTask->InitTask(*Cast<IGameplayTaskOwnerInterface>(TaskOwner), TimeTask->GetGameplayTaskDefaultPriority());
+	TimeTask->InitTask(*TaskOwner, TimeTask->GetGameplayTaskDefaultPriority());
 	TimeTask->SetUp(Default);
 	TimeTask->ReadyForActivation();
 }
@@ -21,7 +21,7 @@ void UGameplayTask_KCSPlayerTimeTask::SetUp(UGameplayTask_KCSPlayerTimeTask* Def
 
 bool UGameplayTask_KCSPlayerTimeTask::CanActivate()
 {
-	const APawn* OwnerPawn = CastChecked<APawn>(GetTaskOwner());
+	const APawn* OwnerPawn = CastChecked<APawn>(GetGameplayTaskAvatar(this));
 	const AKCSPlayerState* PlayerState = OwnerPawn->GetPlayerState<AKCSPlayerState>();
 
 	return PlayerState->GetCrystalsQuantity() >= CrystalCost;
@@ -48,7 +48,9 @@ void UGameplayTask_KCSPlayerTimeTask::OnActivate()
 
 void UGameplayTask_KCSPlayerTimeTask::ConsumeCrystals() const
 {
-	const APawn* OwnerPawn = CastChecked<APawn>(GetTaskOwner());
+	AActor* TaskAvatar = GetTaskOwner()->GetGameplayTaskAvatar(this);
+	const APawn* OwnerPawn = CastChecked<APawn>(TaskAvatar);
+	
 	AKCSPlayerState* PlayerState = OwnerPawn->GetPlayerState<AKCSPlayerState>();
 
 	PlayerState->RemoveCrystals(CrystalCost);

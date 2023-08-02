@@ -22,7 +22,7 @@ void UKCSEnemyBehaviorSubsystem::Initialize(FSubsystemCollectionBase& Collection
 	ElapseEnemiesMovement = EnemiesSettings.MoveSpeedRate;
 	ElapseEnemiesShotRate = EnemiesSettings.FireRate + EnemiesSettings.InitialAttackDelay;
 	
-	EnemiesTimeDilation = WorldSettings->GetEnemiesTimeDilation();
+	//EnemiesTimeDilation = WorldSettings->GetEnemiesTimeDilation();
 	WorldSettings->OnEnemiesTimeDilationChanged.AddUniqueDynamic(this, &ThisClass::OnEnemiesTimeDilationChanged);
 }
 

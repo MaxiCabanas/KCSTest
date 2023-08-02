@@ -3,7 +3,6 @@
 
 #include "Components/KCSTimelineComponent.h"
 
-#include "Actors/KCSGameState.h"
 #include "Actors/KCSWorldSettings.h"
 
 static FName ActorLocationPropertyName(TEXT("RelativeLocation"));
@@ -17,7 +16,8 @@ UKCSTimelineComponent::UKCSTimelineComponent()
 void UKCSTimelineComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// Handle specific properties like actor position.
 	if (RecordActorLocation)
 	{
 		USceneComponent* RootComponent = GetOwner()->GetRootComponent();
@@ -26,7 +26,8 @@ void UKCSTimelineComponent::BeginPlay()
 		FKCSRecordableProperty* RecordableProperty = ActorLocationTimeline.AddProperty(GetOwner(), EKCSRecordedPropertyType::Vector, ActorLocationPropertyName);
 		RecordableProperty->OnRecordablePropertyKeyFrameHit.AddUObject(this, &ThisClass::OnRecordablePropertyKeyFrameHit);
 	}
-	
+
+	// Handle generic properties.
 	for (const FKCSRecordablePropertyParams& RecordablePropertyParam : RecordablePropertyParams)
 	{
 		FKCSPropertyRecorderTimeline& PropertyRecorderTimeline = Timelines.FindOrAdd(GetOwner(), FKCSPropertyRecorderTimeline(GetOwner()));
@@ -35,15 +36,13 @@ void UKCSTimelineComponent::BeginPlay()
 	}
 
 	OnInternalTimelineFinished.BindUObject(this, &ThisClass::OnTimelinePlayFinished);
-	
+
+	// TODO: Create a struct to use as container so we can make helper functions and avoid this loops everywhere.
 	for (TTuple<TObjectPtr<UObject>, FKCSPropertyRecorderTimeline>& TimelinePair : Timelines)
 	{
 		TimelinePair.Value.Timeline.SetTimelineFinishedFunc(OnInternalTimelineFinished);
 		TimelinePair.Value.Init();
 	}
-
-	const AKCSWorldSettings* WorldSettings = CastChecked<AKCSWorldSettings>(GetWorld()->GetWorldSettings());
-	TimeReverseAmount = WorldSettings->GetTimeReverseAmount();
 }
 
 void UKCSTimelineComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -53,23 +52,8 @@ void UKCSTimelineComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	for (TTuple<TObjectPtr<UObject>, FKCSPropertyRecorderTimeline>& TimelinePair : Timelines)
 	{
 		TimelinePair.Value.TickTimeline(DeltaTime);
-	
-		if (!TimelinePair.Value.Timeline.IsPlaying())
-		{
-			const float TimeSeconds = GetWorld()->GetTimeSeconds();
-			
-			//Handle not saving more keys that needed.
-			// if ((TimeSeconds - LastStopTime) > TimeReverseAmount)
-			// {
-			// 	TimelinePair.Value.DeleteAllFirstKeys();
-			// }
-		}
+		// TODO: If we need to limit the amount of recorded time here can be a good place.
 	}
-}
-
-bool UKCSTimelineComponent::CanPlay() const
-{
-	return !Timelines.IsEmpty();
 }
 
 void UKCSTimelineComponent::PlayInReverse()
@@ -88,6 +72,7 @@ void UKCSTimelineComponent::Stop()
 	{
 		TimelinePair.Value.Timeline.Stop();
 	}
+	OnTimelinePlayFinished();
 }
 
 void UKCSTimelineComponent::OnRecordablePropertyKeyFrameHit(FKCSRecordableProperty* RecordableProperty, FVector VectorValue, float FloatValue)
@@ -97,7 +82,8 @@ void UKCSTimelineComponent::OnRecordablePropertyKeyFrameHit(FKCSRecordableProper
 		GetOwner()->SetActorLocation(VectorValue);
 	}
 
-	if ((GetWorld()->GetTimeSeconds() - StartReverseTimestamp) > TimeReverseAmount)
+	// TODO: If we make a container struct, this could be moved inside it.
+	if ((GetWorld()->GetTimeSeconds() - StartReverseTimestamp) > ReverseTimeDuration)
 	{
 		for (TTuple<TObjectPtr<UObject>, FKCSPropertyRecorderTimeline>& TimelinePair : Timelines)
 		{
@@ -105,11 +91,6 @@ void UKCSTimelineComponent::OnRecordablePropertyKeyFrameHit(FKCSRecordableProper
 		}
 		OnTimelinePlayFinished();
 	}
-}
-
-void UKCSTimelineComponent::OnVectorKeyFrameHit(FVector KeyFrameLocation)
-{
-
 }
 
 void UKCSTimelineComponent::OnTimelinePlayFinished()

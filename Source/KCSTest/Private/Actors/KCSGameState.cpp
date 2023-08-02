@@ -62,9 +62,10 @@ void AKCSGameState::RegisterEnemies(const TArray<FKCSEnemiesRow>& Enemies)
 
 	RowsMovedDown = AllEnemies.Num();
 	SetActorTickEnabled(true);
+	OnGameStateReady.Broadcast(this);
 }
 
-void AKCSGameState::GetAllEnemiesActors(TSet<TObjectPtr<AActor>>& OutEnemiesSet)
+void AKCSGameState::GetAllEnemies(TSet<TObjectPtr<AKCSEnemyPawn>>& OutEnemiesSet)
 {
 	for (const FKCSEnemiesRow& EnemiesRow : AllEnemies)
 	{
@@ -76,8 +77,22 @@ void AKCSGameState::GetAllEnemiesActors(TSet<TObjectPtr<AActor>>& OutEnemiesSet)
 			}
 		}
 	}
+}
 
-	OutEnemiesSet.Add(this);
+void AKCSGameState::GetAllTimelineOwners(TSet<TScriptInterface<IKCSTimelineOwnerInterface>>& TimelineOwners)
+{
+	for (const FKCSEnemiesRow& EnemiesRow : AllEnemies)
+	{
+		for (const TObjectPtr<AKCSEnemyPawn> Enemy : EnemiesRow.EnemiesInRow)
+		{
+			if (Enemy && IsValid(Enemy))
+			{
+				TimelineOwners.Add(Enemy);
+			}
+		}
+	}
+
+	TimelineOwners.Add(this);
 }
 
 void AKCSGameState::OnEnemyKilled(AKCSEnemyPawn* KilledEnemyPawn)
@@ -149,6 +164,7 @@ void AKCSGameState::TickActor(float DeltaTime, ELevelTick TickType, FActorTickFu
 	ElapseEnemiesMovement -= DeltaTime;
 	ElapseEnemiesShotRate -= DeltaTime;
 
+	// TODO: I should move this and the shot logic to two different components but I don't gonna have the time.
 	// Move Enemies.
 	if (ElapseEnemiesMovement <= 0)
 	{

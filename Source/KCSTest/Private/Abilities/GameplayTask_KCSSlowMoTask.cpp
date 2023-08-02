@@ -4,8 +4,6 @@
 #include "Abilities/GameplayTask_KCSSlowMoTask.h"
 
 #include "Actors/KCSGameState.h"
-#include "Actors/KCSWorldSettings.h"
-#include "GameFramework/GameStateBase.h"
 
 
 void UGameplayTask_KCSSlowMoTask::SetUp(UGameplayTask_KCSPlayerTimeTask* Default)

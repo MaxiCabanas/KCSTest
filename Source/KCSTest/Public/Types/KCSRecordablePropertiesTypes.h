@@ -42,8 +42,8 @@ struct KCSTEST_API FKCSRecordableProperty
 public:
 	FKCSRecordableProperty() {};
 	
-	FKCSRecordableProperty(UObject* Outer, UObject* InPropertyOwner, EKCSRecordedPropertyType InType, FName InName)
-		: PropertyOwner(InPropertyOwner), Type(InType), Name(InName)
+	FKCSRecordableProperty(UObject* Outer, UObject* InPropertyOwner, FName InName, EKCSRecordedPropertyType InType)
+		: PropertyOwner(InPropertyOwner), Name(InName), Type(InType)
 	{
 		if (Type == EKCSRecordedPropertyType::Vector)
 		{
@@ -54,30 +54,22 @@ public:
 
 		FloatCurve = NewObject<UCurveFloat>(Outer, UCurveFloat::StaticClass(), Name);
 		CachedFloatProperty = FindFProperty<FFloatProperty>(PropertyOwner->GetClass(), Name);
-	};
-
-	EKCSRecordedPropertyType GetType() const
-	{
-		return Type;
 	}
 
-	void AddKey(float DeltaTime)
+	void AddKey()
 	{
 		const float Time = UGameplayStatics::GetRealTimeSeconds(PropertyOwner);
 		
 		if (Type == EKCSRecordedPropertyType::Vector)
 		{
 			const FVector* PropertyValue = CachedProperty->ContainerPtrToValuePtr<FVector>(PropertyOwner);
-
 			VectorCurves->FloatCurves[0].AddKey(Time, PropertyValue->X);
 			VectorCurves->FloatCurves[1].AddKey(Time, PropertyValue->Y);
 			VectorCurves->FloatCurves[2].AddKey(Time, PropertyValue->Z);
-
 			return;
 		}
 
 		const float* PropertyValue = CachedFloatProperty->ContainerPtrToValuePtr<float>(PropertyOwner);
-
 		FloatCurve->FloatCurve.AddKey(Time, *PropertyValue);
 	}
 
@@ -86,14 +78,12 @@ public:
 		if (Type == EKCSRecordedPropertyType::Vector)
 		{
 			OnVectorKeyFrameHit = FOnTimelineVectorStatic::CreateRaw(this, &FKCSRecordableProperty::OnVectorPropertyKeyFrameHit);
-
 			Timeline.AddInterpVector(VectorCurves, OnVectorKeyFrameHit);
 			Timeline.AddInterpVector(VectorCurves, FOnTimelineVector(), CachedProperty->NamePrivate);
 			return;
 		}
 
 		OnFloatKeyFrameHit = FOnTimelineFloatStatic::CreateRaw(this, &FKCSRecordableProperty::OnFloatPropertyKeyFrameHit);
-
 		Timeline.AddInterpFloat(FloatCurve, OnFloatKeyFrameHit);
 		Timeline.AddInterpFloat(FloatCurve, FOnTimelineFloat(), CachedFloatProperty->NamePrivate);
 	}
@@ -101,12 +91,6 @@ public:
 	FName GetName() const
 	{
 		return Name;
-	}
-
-	TArray<FRichCurveEditInfoConst> GetCurves() const
-	{
-		const UCurveBase* Curve = (Type == EKCSRecordedPropertyType::Float) ? CastChecked<UCurveBase>(FloatCurve) : CastChecked<UCurveBase>(VectorCurves);
-		return Curve->GetCurves();
 	}
 
 	void OnVectorPropertyKeyFrameHit(FVector Value)
@@ -169,7 +153,7 @@ public:
 
 	FKCSRecordableProperty* AddProperty(UObject* Outer, EKCSRecordedPropertyType Type, FName PropertyName)
 	{
-		return &RecordedProperties.Add_GetRef(FKCSRecordableProperty(Outer, TimelineOwnerObject, Type, PropertyName));
+		return &RecordedProperties.Add_GetRef(FKCSRecordableProperty(Outer, TimelineOwnerObject, PropertyName, Type));
 	}
 
 	void TickTimeline(float DeltaTime)
@@ -180,7 +164,7 @@ public:
 		{
 			for (FKCSRecordableProperty& RecordedProperty : RecordedProperties)
 			{
-				RecordedProperty.AddKey(DeltaTime);
+				RecordedProperty.AddKey();
 			}
 		}
 	}

@@ -20,7 +20,9 @@ public class KCSTest : ModuleRules
 	        "Niagara",
 	        "EnhancedInput",
 	        "DeveloperSettings",
-	        "GameplayTasks"
+	        "GameplayTasks",
+	        "UMG",
+	        "GameplayTags"
         });
         
         // Plugins

@@ -24,7 +24,15 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	bool CanPlay() const;
+	bool CanPlay() const
+	{
+		return !Timelines.IsEmpty();
+	}
+
+	void SetReverseTimeDuration(float InDuration)
+	{
+		ReverseTimeDuration = InDuration;
+	}
 
 	void PlayInReverse();
 
@@ -39,8 +47,6 @@ protected:
 	
 	void OnRecordablePropertyKeyFrameHit(FKCSRecordableProperty* RecordableProperty, FVector VectorValue, float FloatValue);
 
-	void OnVectorKeyFrameHit(FVector KeyFrameLocation);
-
 	void OnTimelinePlayFinished();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KCS|RecordableProperties")
@@ -50,7 +56,8 @@ protected:
 	TArray<FKCSRecordablePropertyParams> RecordablePropertyParams;
 	
 private:
-	
+
+	// TODO: This could be replaced by a container structure with helper functions.
 	UPROPERTY(Transient)
 	TMap<TObjectPtr<UObject>, FKCSPropertyRecorderTimeline> Timelines;
 
@@ -61,6 +68,6 @@ private:
 	float StartReverseTimestamp = 0.0f;
 
 	UPROPERTY(Transient)
-	float TimeReverseAmount = 3.0f;
+	float ReverseTimeDuration = 3.0f;
 
 };

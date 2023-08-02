@@ -17,7 +17,7 @@ class KCSTEST_API UGameplayTask_KCSPlayerTimeTask : public UGameplayTask
 public:
 
 	UFUNCTION(Category = "KCS|GameplayTasks", meta = (DefaultToSelf = "TaskOwner"))
-	static void Execute(APawn* TaskOwner, const UClass* TaskClass, UGameplayTask_KCSPlayerTimeTask* Default);
+	static void Execute(TScriptInterface<IGameplayTaskOwnerInterface> TaskOwner, const UClass* TaskClass, UGameplayTask_KCSPlayerTimeTask* Default);
 
 	virtual UClass* GetTimeTaskStaticClass() const
 	{
