@@ -9,12 +9,6 @@
 #include "UI/Types/KCSIntData.h"
 #include "UI/Types/KCSUITags.h"
 
-
-#define NOTIFY_LIVES_TO_UI() UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(GetWorld(), TAG_UI_Message_PlayerLivesUpdated, FKCSIntData(Lives));
-#define NOTIFY_CRYSTALS_TO_UI() UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(GetWorld(), TAG_UI_Message_PlayerCrystalsUpdated, FKCSIntData(Crystals));
-#define NOTIFY_SCORE_TO_UI() UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(WorldContextObject, TAG_UI_Message_PlayerScoreUpdated, FKCSIntData(NewScore));
-#define NOTIFY_HIGHSCORE_TO_UI() UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(GetWorld(), TAG_UI_Message_PlayerHighScoreUpdated, FKCSIntData(HighScore));
-
 void AKCSPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
@@ -31,26 +25,26 @@ void AKCSPlayerState::BeginPlay()
 	HighScoreRequestableData.AddUObject(this, &ThisClass::OnHighScoreDataRequested);
 
 	FKCSRequestableData& ScoreRequestableData = UKCSGameplayTagMessageSubsystem::RegisterRequestableData(this, TAG_UI_Message_PlayerScoreUpdated);
-	ScoreRequestableData.AddUObject(this, &ThisClass::OnHighScoreDataRequested);
+	ScoreRequestableData.AddUObject(this, &ThisClass::OnScoreDataRequested);
 }
 
 void AKCSPlayerState::OnLiveLost()
 {
 	Lives--;
-	NOTIFY_LIVES_TO_UI()
+	UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(GetWorld(), TAG_UI_Message_PlayerLivesUpdated, FKCSIntData(Lives));
 }
 
 void AKCSPlayerState::AddCrystals(int32 CrystalsToAdd)
 {
 	ensure(CrystalsToAdd > 0);
 	Crystals += CrystalsToAdd;
-	NOTIFY_CRYSTALS_TO_UI()
+	UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(GetWorld(), TAG_UI_Message_PlayerCrystalsUpdated, FKCSIntData(Crystals));
 }
 
 void AKCSPlayerState::RemoveCrystals(int32 CrystalsToRemove)
 {
 	Crystals -= FMath::Max(CrystalsToRemove, 0);
-	NOTIFY_CRYSTALS_TO_UI()
+	UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(GetWorld(), TAG_UI_Message_PlayerCrystalsUpdated, FKCSIntData(Crystals));
 }
 
 void AKCSPlayerState::MatchEnded()
@@ -70,8 +64,9 @@ void AKCSPlayerState::AddScore(UObject* WorldContextObject, int32 ScoreToAdd)
 	const float NewScore = PlayerState->GetScore() + ScoreToAdd;
 	PlayerState->SetScore(NewScore);
 	PlayerState->TrySetHighScore(NewScore);
-	
-	NOTIFY_SCORE_TO_UI()
+
+	const int32 ScoreAsInt = FMath::RoundHalfToEven(NewScore);
+	UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(WorldContextObject, TAG_UI_Message_PlayerScoreUpdated, FKCSIntData(ScoreAsInt));
 }
 
 void AKCSPlayerState::TrySetHighScore(int32 InScore)
@@ -79,22 +74,23 @@ void AKCSPlayerState::TrySetHighScore(int32 InScore)
 	if (InScore > HighScore)
 	{
 		HighScore = InScore;
-		NOTIFY_HIGHSCORE_TO_UI();
+		UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(GetWorld(), TAG_UI_Message_PlayerHighScoreUpdated, FKCSIntData(HighScore));
 	}
 }
 
 void AKCSPlayerState::OnLivesDataRequested()
 {
-	NOTIFY_LIVES_TO_UI();
+	UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(GetWorld(), TAG_UI_Message_PlayerLivesUpdated, FKCSIntData(Lives));
 }
 
 void AKCSPlayerState::OnHighScoreDataRequested()
 {
-	NOTIFY_HIGHSCORE_TO_UI();
+	UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(GetWorld(), TAG_UI_Message_PlayerHighScoreUpdated, FKCSIntData(HighScore));
 }
 
 void AKCSPlayerState::OnScoreDataRequested()
 {
-	UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(GetWorld(), TAG_UI_Message_PlayerScoreUpdated, FKCSIntData(HighScore));
+	const int32 ScoreAsInt = FMath::RoundHalfToEven(GetScore());
+	UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(GetWorld(), TAG_UI_Message_PlayerScoreUpdated, FKCSIntData(ScoreAsInt));
 }
 
