@@ -70,16 +70,18 @@ void AKCSGameState::RegisterEnemies(const TArray<FKCSEnemiesRow>& Enemies)
 		EnemiesInFrontline = AllEnemies[0].EnemiesInRow;
 	}
 
+	EnemiesInitialAmount = 0;
 	for (FKCSEnemiesRow& EnemiesRow : AllEnemies)
 	{
 		for (const TObjectPtr<AKCSEnemyPawn>& Enemy : EnemiesRow.EnemiesInRow)
 		{
+			EnemiesInitialAmount++;
 			Enemy->OnEnemyKilled.AddUniqueDynamic(this, &ThisClass::OnEnemyKilled);
 		}
 	}
 
 	RowsMovedDown = AllEnemies.Num();
-	SetActorTickEnabled(true);
+	SetActorTickEnabled(true); 
 	OnGameStateReady.Broadcast(this);
 }
 
@@ -178,8 +180,10 @@ FVector AKCSGameState::CalculateEnemiesDirection()
 void AKCSGameState::TickActor(float DeltaTime, ELevelTick TickType, FActorTickFunction& ThisTickFunction)
 {
 	Super::TickActor(DeltaTime, TickType, ThisTickFunction);
-	
-	ElapseEnemiesMovement -= DeltaTime;
+
+	//TODO GetEnemiesAliveCount() is too slow to be right calling it here, but don't have time to fix it.
+	const float EnemiesAlivesScalar = GetEnemiesAliveCount() / static_cast<float>(EnemiesInitialAmount);
+	ElapseEnemiesMovement -= (DeltaTime * EnemiesSpeedMultiplier.EditorCurveData.Eval(EnemiesAlivesScalar)) ;
 	ElapseEnemiesShotRate -= DeltaTime;
 
 	// TODO: I should move this and the shot logic to two different components but I don't gonna have the time.

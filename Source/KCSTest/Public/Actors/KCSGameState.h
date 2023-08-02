@@ -97,6 +97,10 @@ protected:
 	void SanitizeEnemies();
 	
 	FVector CalculateEnemiesDirection();
+
+	/** This curve describes how the speed of the enemies will increase while they die. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KCS|Enemies")
+	FRuntimeFloatCurve EnemiesSpeedMultiplier;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UKCSTimelineComponent* TimelineComponent;
@@ -131,4 +135,7 @@ private:
 
 	UPROPERTY(Transient)
 	float ElapseEnemiesShotRate = 0.0f;
+
+	UPROPERTY(Transient)
+	int32 EnemiesInitialAmount = 0;
 };
