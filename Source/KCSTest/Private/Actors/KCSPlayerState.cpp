@@ -34,21 +34,20 @@ void AKCSPlayerState::BeginPlay()
 void AKCSPlayerState::OnLiveLost()
 {
 	Lives--;
-	//NOTIFY_LIVES_TO_UI()
-	UKCSGameplayTagMessageSubsystem::SendMessage<FKCSIntData>(GetWorld(), TAG_UI_Message_PlayerLivesUpdated, FKCSIntData(Lives));
+	NOTIFY_LIVES_TO_UI()
 }
 
 void AKCSPlayerState::AddCrystals(int32 CrystalsToAdd)
 {
 	ensure(CrystalsToAdd > 0);
 	Crystals += CrystalsToAdd;
-	//NOTIFY_CRYSTALS_TO_UI()
+	NOTIFY_CRYSTALS_TO_UI()
 }
 
 void AKCSPlayerState::RemoveCrystals(int32 CrystalsToRemove)
 {
 	Crystals -= FMath::Max(CrystalsToRemove, 0);
-	//NOTIFY_CRYSTALS_TO_UI()
+	NOTIFY_CRYSTALS_TO_UI()
 }
 
 void AKCSPlayerState::MatchEnded()
@@ -69,7 +68,7 @@ void AKCSPlayerState::AddScore(UObject* WorldContextObject, int32 ScoreToAdd)
 	PlayerState->SetScore(NewScore);
 	PlayerState->TrySetHighScore(NewScore);
 	
-	//NOTIFY_SCORE_TO_UI()
+	NOTIFY_SCORE_TO_UI()
 }
 
 void AKCSPlayerState::TrySetHighScore(int32 InScore)
@@ -77,17 +76,17 @@ void AKCSPlayerState::TrySetHighScore(int32 InScore)
 	if (InScore > HighScore)
 	{
 		HighScore = InScore;
-		//NOTIFY_HIGHSCORE_TO_UI();
+		NOTIFY_HIGHSCORE_TO_UI();
 	}
 }
 
 void AKCSPlayerState::OnLivesDataRequested()
 {
-	//NOTIFY_LIVES_TO_UI();
+	NOTIFY_LIVES_TO_UI();
 }
 
 void AKCSPlayerState::OnHighScoreDataRequested()
 {
-	//NOTIFY_HIGHSCORE_TO_UI();
+	NOTIFY_HIGHSCORE_TO_UI();
 }
 
