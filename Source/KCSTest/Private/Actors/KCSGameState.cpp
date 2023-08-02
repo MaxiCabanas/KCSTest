@@ -3,8 +3,8 @@
 
 #include "Actors/KCSGameState.h"
 
+#include "Actors/KCSGameMode.h"
 #include "Actors/Characters/KCSEnemyPawn.h"
-#include "SubSystems/KCSEnemyBehaviorSubsystem.h"
 
 AKCSGameState::AKCSGameState()
 {
@@ -41,6 +41,24 @@ void AKCSGameState::SetGameStateTimeDilation(float NewTimeDilation)
 {
 	CustomTimeDilation = NewTimeDilation;
 	OnGameStateTimeDilationChanged.Broadcast(CustomTimeDilation);
+}
+
+int32 AKCSGameState::GetEnemiesAliveCount() const
+{
+	int32 Count = 0;
+	
+	for (const FKCSEnemiesRow& EnemiesRow : AllEnemies)
+	{
+		for (const TObjectPtr<AKCSEnemyPawn>& EnemyPawn : EnemiesRow.EnemiesInRow)
+		{
+			if (EnemyPawn && IsValid(EnemyPawn))
+			{
+				Count++;
+			}
+		}
+	}
+
+	return Count;
 }
 
 void AKCSGameState::RegisterEnemies(const TArray<FKCSEnemiesRow>& Enemies)

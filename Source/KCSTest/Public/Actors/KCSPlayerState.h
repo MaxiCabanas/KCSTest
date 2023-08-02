@@ -6,12 +6,13 @@
 #include "GameFramework/PlayerState.h"
 #include "KCSPlayerState.generated.h"
 
-UCLASS()
+UCLASS(Config = Game)
 class KCSTEST_API AKCSPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 
 public:
+	
 	virtual void BeginPlay() override;
 
 	void OnLiveLost();
@@ -23,6 +24,8 @@ public:
 
 	void RemoveCrystals(int32 CrystalsToRemove);
 
+	void MatchEnded();
+
 	UFUNCTION(BlueprintCallable, meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static void AddScore(UObject* WorldContextObject, int32 ScoreToAdd);
 
@@ -30,9 +33,16 @@ public:
 
 protected:
 
+	void TrySetHighScore(int32 InScore);
+
 	void OnLivesDataRequested();
 
+	void OnHighScoreDataRequested();
+
 private:
+
+	UPROPERTY(Config)
+	int32 HighScore = 0;
 
 	int32 Crystals = 0;
 

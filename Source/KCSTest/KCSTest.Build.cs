@@ -21,8 +21,7 @@ public class KCSTest : ModuleRules
 	        "EnhancedInput",
 	        "DeveloperSettings",
 	        "GameplayTasks",
-	        "UMG",
-	        "GameplayTags"
+	        "UMG"
         });
         
         // Plugins

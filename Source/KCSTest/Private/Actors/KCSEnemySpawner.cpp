@@ -4,7 +4,6 @@
 #include "Actors/KCSEnemySpawner.h"
 
 #include "Actors/KCSGameState.h"
-#include "SubSystems/KCSEnemyBehaviorSubsystem.h"
 
 
 AKCSEnemySpawner::AKCSEnemySpawner()

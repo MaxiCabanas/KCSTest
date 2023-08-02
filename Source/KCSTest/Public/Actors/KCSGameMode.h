@@ -7,6 +7,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "KCSGameMode.generated.h"
 
+struct FGameplayTag;
 class AKCSPlayerController;
 class AKCSPlayerPawn;
 
@@ -21,12 +22,19 @@ public:
 	
 	virtual void InitGameState() override;
 
+	UFUNCTION(BlueprintCallable)
+	void SetMatchEndeed();
+
 protected:
 	
 	virtual void FinishRestartPlayer(AController* NewPlayer, const FRotator& StartRotation) override;
 
+	void SetGameState(const FGameplayTag& InGameState);
+
 	UFUNCTION()
 	void OnPlayerPawnKilled();
+
+	void RespawnPlayerPawn();
 	
 	UFUNCTION()
 	void OnGameStateReady(AKCSGameState* KCSGameState);

@@ -4,5 +4,6 @@
 #include "UI/Types/KCSUITags.h"
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Message_PlayerScoreUpdated, "UI.Message.PlayerScoreUpdated");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Message_PlayerHighScoreUpdated, "UI.Message.PlayerHighScoreUpdated");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Message_PlayerCrystalsUpdated, "UI.Message.PlayerCrystalsUpdated");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Message_PlayerLivesUpdated, "UI.Message.PlayerLivesUpdated");

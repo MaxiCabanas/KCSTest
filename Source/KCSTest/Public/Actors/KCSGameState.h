@@ -14,6 +14,41 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKCSGameStateFloatEvent, float, Value);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKCSGameStateEvent, class AKCSGameState*, GameState);
 
+USTRUCT()
+struct FKCSEnemiesRow
+{
+	GENERATED_BODY()
+
+public:
+	FKCSEnemiesRow() {};
+
+	FKCSEnemiesRow(int32 AmountOfEnemies)
+	{
+		EnemiesInRow.Reserve(AmountOfEnemies);
+	}
+
+	bool IsEmpty() const
+	{
+		if (EnemiesInRow.IsEmpty())
+		{
+			return true;
+		}
+
+		for (const TObjectPtr<AKCSEnemyPawn>& EnemyPawn : EnemiesInRow)
+		{
+			if (EnemyPawn)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+	
+	UPROPERTY()
+	TArray<TObjectPtr<AKCSEnemyPawn>> EnemiesInRow;
+};
+
 UCLASS()
 class KCSTEST_API AKCSGameState : public AGameStateBase, public IKCSTimelineOwnerInterface
 {
@@ -41,6 +76,8 @@ public:
 	void GetNotifyEnemyReachGameBorder();
 
 	void SetGameStateTimeDilation(float NewTimeDilation);
+
+	int32 GetEnemiesAliveCount() const;
 
 	virtual void TickActor(float DeltaTime, ELevelTick TickType, FActorTickFunction& ThisTickFunction) override;
 
