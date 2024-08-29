@@ -56,11 +56,11 @@ void AKCSPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(MoveLeftAction, ETriggerEvent::Completed, this, &ThisClass::ProcessMoveInput, &LastMoveLeftValue);
 	EnhancedInputComponent->BindAction(MoveRightAction, ETriggerEvent::Completed, this, &ThisClass::ProcessMoveInput, &LastMoveRightValue);
 
-	for (FKCSInputGameplayTask& Task : InputTasks)
+	for (UGameplayTask_KCSPlayerTimeTask* Task : InputTasks)
 	{
-		if (Task.InputAction && Task.Task)
+		if (Task && Task->InputAction)
 		{
-			EnhancedInputComponent->BindAction(Task.InputAction, ETriggerEvent::Triggered, this, &ThisClass::ActivateGameplayTask, Task.Task);
+			EnhancedInputComponent->BindAction(Task->InputAction, ETriggerEvent::Triggered, this, &ThisClass::ActivateGameplayTask, Task);
 		}
 	}
 }

@@ -15,21 +15,6 @@ class UGameplayTask_KCSPlayerTimeTask;
 class UInputAction;
 class UInputMappingContext;
 
-/** Wrapper struct that pairs a InputAction to a GameplayTask. */
-USTRUCT(BlueprintType)
-struct FKCSInputGameplayTask
-{
-	GENERATED_BODY()
-
-public:
-	
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UInputAction> InputAction;
-
-	UPROPERTY(Instanced, EditDefaultsOnly, meta = (ShowOnlyInnerProperties))
-	TObjectPtr<UGameplayTask_KCSPlayerTimeTask> Task;
-};
-
 UCLASS()
 class KCSTEST_API AKCSPlayerController : public APlayerController, public IGameplayTaskOwnerInterface
 {
@@ -77,7 +62,7 @@ protected:
 	TObjectPtr<UInputMappingContext> GameplayMappingContext;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KCS|Input")
-	TArray<FKCSInputGameplayTask> InputTasks;
+	TArray<TObjectPtr<UGameplayTask_KCSPlayerTimeTask>> InputTasks;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "KCS|Input")
 	float ShotCooldown = 0.5f;

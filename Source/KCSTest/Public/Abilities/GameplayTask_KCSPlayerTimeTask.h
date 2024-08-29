@@ -6,6 +6,7 @@
 #include "GameplayTask.h"
 #include "GameplayTask_KCSPlayerTimeTask.generated.h"
 
+class UInputAction;
 /**
  * 
  */
@@ -41,4 +42,7 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float Duration = 1.0f;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UInputAction> InputAction
 };
